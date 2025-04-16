@@ -13,17 +13,20 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: true,
-        minlength: 8
+        minlength: 5
     },
     gender: {
         type: String,
         required: true,
-        enum: ['male', 'female', 'other']
+        enum: ['Male', 'Female', 'Other']
     },
     profilePic: {
         type: String,
         default: ""
     },
-})
+});
 
-export const User = mongoose.model("User", userSchema);
+// can't do export const user
+const User = mongoose.model("User", userSchema);
+
+export default User;
