@@ -3,9 +3,10 @@ import { login, signup, logout } from "../Controllers/auth.controllers.js";
 
 const router = express.Router();
 
-router.get("/login", login);
+// Calls login function when route is http://localhost:8000/api/auth/login
+router.post("/login", login);
 
-router.get("/signup",signup);
+router.post("/signup", signup);
 
-router.get("/logout", logout);
+router.post("/logout", logout);
 export default router;
