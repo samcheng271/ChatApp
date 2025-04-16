@@ -13,8 +13,7 @@ export const signup = async (req, res) => {
             return res.status(400).json({error:"Passwords do not match"});
         }
 
-        const existingUser = await User.findOne({username});
-        if (existingUser) {
+        if (await User.findOne({username})) {
             return res.status(400).json({error:"Username already exists"});
         }
 

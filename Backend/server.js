@@ -10,7 +10,7 @@ dotenv.config();
 
 
 // intakes requests with json data
-app.use(express.json);
+app.use(express.json());
 
 // http://localhost:8000
 app.get("/", (req,res) =>{
