@@ -1,4 +1,5 @@
 import User from "../Models/userModels.js";
+import bcrypt from "bcryptjs";
 
 export const login = (req, res) => {
     res.send("Login")
@@ -17,6 +18,10 @@ export const signup = async (req, res) => {
             return res.status(400).json({error:"Username already exists"});
         }
 
+        // create hash password
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+
         const malePic = `https://avatar.iran.liara.run/public/boy`;
         const femalePic = `https://avatar.iran.liara.run/public/girl`;
         const otherPic = `https://avatar.iran.liara.run/public`;
@@ -24,22 +29,24 @@ export const signup = async (req, res) => {
         const newUser = new User({
             name,
             username,
-            password,
+            password: hashedPassword,
             gender,
             profilePic: gender == "Male" ? malePic : gender == "Female" ? femalePic : otherPic
         })
+        if(newUser){
+            // save to database
+            await newUser.save();
 
-        // save to database
-        await newUser.save();
+            res.status(201).json({
+                _id: newUser._id, // _id builtin by mongo
+                name: newUser.name,
+                username: newUser.username,
 
-        res.status(201).json({
-            _id: newUser._id, // _id builtin by mongo
-            name: newUser.name,
-            username: newUser.username,
-
-            profilePic: newUser.profilePic
-        });
-
+                profilePic: newUser.profilePic
+            });
+        }else{
+            res.status(400).json({error:"User not created"});
+        }
     } catch (error) {
         console.log("Error in signup controller", error.message);
         res.status(500).json({error: error.message});
