@@ -2,7 +2,7 @@ import User from "../Models/userModels.js";
 import bcrypt from "bcryptjs";
 import generateJWTandCookie from "../Utils/generateJWT.js";
 
-export const login =  (req, res) => {
+export const login =  async (req, res) => {
 try {
     const {username, password} = req.body;
     if(!username || !password){
