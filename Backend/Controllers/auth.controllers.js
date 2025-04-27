@@ -1,9 +1,33 @@
 import User from "../Models/userModels.js";
 import bcrypt from "bcryptjs";
+import generateJWTandCookie from "../Utils/generateJWT.js";
 
-export const login = (req, res) => {
-    res.send("Login")
-    console.log("Login");
+export const login =  (req, res) => {
+try {
+    const {username, password} = req.body;
+    if(!username || !password){
+        return res.status(400).json({error:"Please enter username and password"});
+    }
+    const user = await User.findOne({username});
+
+    const isMatch = await bcrypt.compare(password, user?.password || "");
+    if(!isMatch || !user){
+        return res.status(400).json({error:"Invalid username or password"});
+    }
+
+    generateJWTandCookie(user._id, res);
+
+    res.status(200).json({
+        _id: user._id,
+        name: user.name,
+        username: user.username,
+        profilePic: user.profilePic
+    });
+} catch (error) {
+    console.log("Error in login controller", error.message);
+    res.status(500).json({error: error.message});
+}
+    
 };
 
 export const signup = async (req, res) => {
@@ -24,16 +48,19 @@ export const signup = async (req, res) => {
 
         const malePic = `https://avatar.iran.liara.run/public/boy`;
         const femalePic = `https://avatar.iran.liara.run/public/girl`;
-        const otherPic = `https://avatar.iran.liara.run/public`;
+        const randomPic = `https://avatar.iran.liara.run/public`;
 
         const newUser = new User({
             name,
             username,
             password: hashedPassword,
             gender,
-            profilePic: gender == "Male" ? malePic : gender == "Female" ? femalePic : otherPic
+            profilePic: gender === "Male" ? malePic : gender === "Female" ? femalePic : randomPic
         })
         if(newUser){
+
+            await generateJWTandCookie(newUser._id, res);
+
             // save to database
             await newUser.save();
 
@@ -44,6 +71,7 @@ export const signup = async (req, res) => {
 
                 profilePic: newUser.profilePic
             });
+
         }else{
             res.status(400).json({error:"User not created"});
         }
